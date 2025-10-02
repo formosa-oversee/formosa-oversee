@@ -4,11 +4,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run fetch-data && next build",
     "start": "next start",
     "lint": "next lint",
     "export": "next export",
-    "deploy": "next build && touch out/.nojekyll && git add out/ && git commit -m \"Deploy to gh-pages\" && git subtree push --prefix out origin gh-pages",
+    "deploy": "npm run build && touch out/.nojekyll && git add out/ && git commit -m \"Deploy to gh-pages\" && git subtree push --prefix out origin gh-pages",
+    "download-epa": "node scripts/download-epa-data.js",
+    "fetch-data": "node scripts/fetch-gcs-data.js",
+    "setup-epa": "npm run download-epa && npm run fetch-data",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
