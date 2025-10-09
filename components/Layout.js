@@ -11,7 +11,7 @@ const Navbar = () => {
           <Link href="/" legacyBehavior>
             <Flex as="a" alignItems="center" cursor="pointer">
               <Icon as={FaLeaf} color="green.500" boxSize={6} mr={2} />
-              <Heading as="h1" size="lg" color="green.600">GreenWatchAI</Heading>
+              <Heading as="h1" size="lg" color="green.600">Formosa Oversee</Heading>
             </Flex>
           </Link>
           <HStack spacing={6}>
@@ -34,7 +34,7 @@ const Footer = () => {
         <VStack spacing={6}>
           <Flex w="100%" justifyContent="space-between" flexDir={{ base: 'column', md: 'row' }} gap={4}>
             <Box>
-              <Heading size="md" mb={4} color="green.600">GreenWatchAI</Heading>
+              <Heading size="md" mb={4} color="green.600">Formosa Oversee</Heading>
               <Text color="gray.600">企業環境監測平台</Text>
               <Text color="gray.600" maxW="md" mt={2}>
                 幫助投資者、消費者和公眾了解企業的環境表現和違規記錄
@@ -42,7 +42,7 @@ const Footer = () => {
             </Box>
             <Box>
               <Heading size="sm" mb={4} color="green.600">聯絡我們</Heading>
-              <Text color="gray.600">Email: contact@greenwatchai.com</Text>
+              <Text color="gray.600">Email: contact@formosa-oversee.org</Text>
               <HStack mt={4} spacing={4}>
                 <ChakraLink href="#" isExternal>
                   <Icon as={FaGithub} boxSize={5} color="gray.600" />
@@ -55,7 +55,7 @@ const Footer = () => {
           </Flex>
           <Box w="100%" borderTopWidth={1} borderColor="gray.200" pt={6}>
             <Text color="gray.500" fontSize="sm" textAlign="center">
-              © {new Date().getFullYear()} GreenWatchAI. 版權所有。
+              © {new Date().getFullYear()} Formosa Oversee. 版權所有。
             </Text>
           </Box>
         </VStack>

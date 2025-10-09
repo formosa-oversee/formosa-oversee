@@ -1,5 +1,5 @@
 {
-  "name": "greenwatch_demo",
+  "name": "formosa-oversee",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "GreenWatchAI demo for displaying company ESG information and environmental violations",
+  "description": "Formosa Oversee - Platform for monitoring company environmental performance and violations",
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.3",

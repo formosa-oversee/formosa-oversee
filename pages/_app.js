@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <ChakraProvider theme={theme}>
       <Head>
-        <title>GreenWatchAI - 企業環境監測平台</title>
+        <title>Formosa Oversee - 企業環境監測平台</title>
         <meta name="description" content="追蹤企業環境績效和違規紀錄的平台" />
         <link rel="icon" href="/favicon.ico" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />

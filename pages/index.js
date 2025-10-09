@@ -28,7 +28,7 @@ export default function Home() {
         <Container maxW="container.xl">
           <Stack spacing={8} textAlign="center">
             <Heading as="h1" size="2xl" color="green.600">
-              GreenWatchAI
+              Formosa Oversee
             </Heading>
             <Text fontSize="xl" color="green.700">
               企業環境監測平台
@@ -83,7 +83,7 @@ export default function Home() {
                 關於我們的平台
               </Heading>
               <Text fontSize="lg" color="gray.600" mb={4}>
-                GreenWatchAI 致力於提高企業環境責任的透明度，我們匯集來自EPA、公共記錄和企業報告的數據，
+                Formosa Oversee 致力於提高企業環境責任的透明度，我們匯集來自EPA、公共記錄和企業報告的數據，
                 提供全面的企業環境表現分析。
               </Text>
               <Text fontSize="lg" color="gray.600">

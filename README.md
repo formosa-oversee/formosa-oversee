@@ -1,6 +1,6 @@
-# GreenWatchAI - 企業環境監測平台
+# Formosa Oversee - 企業環境監測平台
 
-GreenWatchAI 是一個模擬的企業環境監測平台，幫助投資者、消費者和公眾了解企業的環境表現和違規記錄。本專案是一個使用 Next.js 和 Chakra UI 構建的前端演示應用。
+Formosa Oversee 是一個企業環境監測平台，幫助投資者、消費者和公眾了解企業的環境表現和違規記錄。本專案是一個使用 Next.js 和 Chakra UI 構建的前端演示應用。
 
 ## 功能特色
 
@@ -22,8 +22,8 @@ GreenWatchAI 是一個模擬的企業環境監測平台，幫助投資者、消�
 
 1. 克隆此專案
    ```
-   git clone https://github.com/yourusername/greenwatch-demo.git
-   cd greenwatch-demo
+   git clone https://github.com/formosa-oversee/formosa-oversee.git
+   cd formosa-oversee
    ```
 
 2. 安裝依賴
