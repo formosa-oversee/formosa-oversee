@@ -119,20 +119,144 @@ function parseCSV(csvContent) {
 }
 
 /**
+ * 將數字字串轉換為字串（去除 .0 後綴）
+ */
+function normalizeId(value) {
+  if (!value) return value;
+  const str = String(value);
+  // 如果是以 .0 結尾的數字字串，移除 .0
+  if (str.match(/^\d+\.0+$/)) {
+    return str.split('.')[0];
+  }
+  return str;
+}
+
+/**
  * 轉換 EPA 資料格式 - 支援台灣企業境外投資違規資料
  */
 function transformEPAFacilityData(facilities, violations = []) {
   const companiesMap = new Map();
-  
-  // 優先處理違規資料（因為這個資料集更完整）
-  violations.forEach(violation => {
-    const companyCode = violation['公司代號'];
-    const companyName = violation['投資公司名稱'];
-    const companyEnglishName = violation['投資公司英文全稱'];
-    const facilityName = violation['FACILITY_NAME'];
-    const facilityId = violation['ICIS_FACILITY_ID'];
+  const companyInfoMap = new Map(); // 儲存台灣公司基本資訊
+  const facilityInfoMap = new Map(); // 儲存設施地址資訊
+
+  // 先從 facilities 建立公司和設施資訊索引
+  facilities.forEach(facility => {
+    const companyCode = normalizeId(facility['公司代號']);
+    const facilityId = normalizeId(facility['icis_facility_id']);
+
+    // 儲存公司基本資訊
+    if (companyCode && !companyInfoMap.has(companyCode)) {
+      companyInfoMap.set(companyCode, {
+        name: facility['投資公司名稱'],
+        englishName: facility['投資公司英文全稱'],
+        chairman: facility['董事長'],
+        foundedDate: facility['成立日期'],
+        listedDate: facility['上市日期'],
+        capital: facility['實收資本額(元)'],
+        website: facility['公司網址'],
+        address: facility['住址'],
+        industry: facility['產業類別'] || 'N/A',
+        logoUrl: facility['LOGO網址']
+      });
+    }
+
+    // 儲存設施地址資訊
+    if (facilityId) {
+      facilityInfoMap.set(facilityId, {
+        address: facility['facility_address'] || 'N/A',
+        city: facility['city'] || 'N/A',
+        state: facility['state'] || 'N/A',
+        zipCode: facility['zip'] || 'N/A',
+        latitude: facility['latitude'] || null,
+        longitude: facility['longitude'] || null,
+        shareholding: facility['持股比例']
+      });
+    }
+  });
+
+  // 首先從 facilities.csv 建立所有公司和設施
+  facilities.forEach(facility => {
+    const companyCode = normalizeId(facility['公司代號']);
+    const companyName = facility['投資公司名稱'];
+    const companyEnglishName = facility['投資公司英文全稱'];
+    const facilityName = facility['facility_name'];
+    const facilityId = normalizeId(facility['icis_facility_id']);
     
-    if (!companyCode || !companyName) return;
+    if (!companyCode || !companyName || !facilityId) return;
+    
+    const companyId = `tw-${companyCode}`;
+
+    if (!companiesMap.has(companyId)) {
+      // 從 companyInfoMap 獲取台灣公司基本資訊
+      const companyInfo = companyInfoMap.get(companyCode) || {};
+
+      companiesMap.set(companyId, {
+        id: companyId,
+        name: companyName,
+        englishName: companyEnglishName || companyName,
+        parentCompany: null,
+        companyType: '台灣上市公司',
+        companyCode: companyCode,
+        chairman: companyInfo.chairman,
+        foundedDate: companyInfo.foundedDate,
+        listedDate: companyInfo.listedDate,
+        capital: companyInfo.capital,
+        website: companyInfo.website,
+        address: companyInfo.address,
+        industry: companyInfo.industry || 'N/A',
+        logoUrl: companyInfo.logoUrl,
+        facilities: [],
+        violations: [],
+        enforcement: [],
+        metadata: {
+          dataSource: 'EPA ECHO - 台灣企業境外投資',
+          lastUpdated: new Date().toISOString()
+        }
+      });
+    }
+    
+    const company = companiesMap.get(companyId);
+    
+    // 建立設施資料
+    let existingFacility = company.facilities.find(f => f.facilityId === facilityId);
+    if (!existingFacility) {
+      // 從 facilityInfoMap 獲取設施地址資訊
+      const facilityInfo = facilityInfoMap.get(facilityId) || {};
+
+      existingFacility = {
+        facilityId: facilityId,
+        name: facilityName,
+        registryId: normalizeId(facility['npdes_id']) || facilityId,
+        address: facilityInfo.address || 'N/A',
+        city: facilityInfo.city || 'N/A',
+        state: facilityInfo.state || 'N/A',
+        zipCode: facilityInfo.zipCode || 'N/A',
+        country: facility['地區別代號']?.includes('美國') ? 'USA' : 'Unknown',
+        industry: 'N/A',
+        coordinates: {
+          latitude: facilityInfo.latitude || null,
+          longitude: facilityInfo.longitude || null
+        },
+        shareholding: facilityInfo.shareholding,
+        programs: {
+          air: false,
+          water: true, // 大部分是水污染違規
+          waste: false,
+          toxics: false
+        }
+      };
+      company.facilities.push(existingFacility);
+    }
+  });
+
+  // 然後處理違規資料，補充到現有的設施中
+  violations.forEach(violation => {
+    const companyCode = normalizeId(violation['公司代號']);
+    const companyName = violation['投資公司名稱'];
+    const facilityName = violation['FACILITY_NAME'];
+    const facilityId = normalizeId(violation['ICIS_FACILITY_ID']);
+    
+    if (!companyCode || !companyName || !facilityId) return;
     
     // 跳過不完整的記錄（如果啟用過濾）
     if (GCS_CONFIG.processing.filterIncompleteRecords) {
@@ -140,46 +264,34 @@ function transformEPAFacilityData(facilities, violations = []) {
     }
     
     const companyId = `tw-${companyCode}`;
-    
-    if (!companiesMap.has(companyId)) {
-      companiesMap.set(companyId, {
-        id: companyId,
-        name: companyName,
-        englishName: companyEnglishName || companyName,
-        parentCompany: '台灣上市公司',
-        facilities: [],
-        violations: [],
-        enforcement: [],
-        metadata: {
-          dataSource: 'EPA ECHO - 台灣企業境外投資',
-          lastUpdated: new Date().toISOString(),
-          companyCode: companyCode
-        }
-      });
-    }
-    
     const company = companiesMap.get(companyId);
     
-    // 建立或更新設施資料
+    if (!company) return; // 如果公司不存在，跳過
+    
+    // 確保設施存在
     let facility = company.facilities.find(f => f.facilityId === facilityId);
     if (!facility) {
+      // 如果設施不存在，建立一個基本設施記錄
+      const facilityInfo = facilityInfoMap.get(facilityId) || {};
+      
       facility = {
         facilityId: facilityId,
         name: facilityName,
-        registryId: violation['NPDES_ID'] || facilityId,
-        address: 'N/A',
-        city: 'N/A',
-        state: 'N/A',
-        zipCode: 'N/A',
+        registryId: normalizeId(violation['NPDES_ID']) || facilityId,
+        address: facilityInfo.address || 'N/A',
+        city: facilityInfo.city || 'N/A',
+        state: facilityInfo.state || 'N/A',
+        zipCode: facilityInfo.zipCode || 'N/A',
         country: violation['地區別代號']?.includes('美國') ? 'USA' : 'Unknown',
         industry: 'N/A',
         coordinates: {
-          latitude: null,
-          longitude: null
+          latitude: facilityInfo.latitude || null,
+          longitude: facilityInfo.longitude || null
         },
+        shareholding: facilityInfo.shareholding,
         programs: {
           air: false,
-          water: true, // 大部分是水污染違規
+          water: true,
           waste: false,
           toxics: false
         }
@@ -189,7 +301,7 @@ function transformEPAFacilityData(facilities, violations = []) {
 
     // 建立違規記錄
     const violationRecord = {
-      violationId: violation['NPDES_VIOLATION_ID'] || `EPA-${companyCode}-${Date.now()}`,
+      violationId: normalizeId(violation['NPDES_VIOLATION_ID']) || `EPA-${companyCode}-${Date.now()}`,
       violationTypeCode: violation['VIOLATION_TYPE_CODE'],
       violationCode: violation['VIOLATION_CODE'],
       description: violation['VIOLATION_DESC'] || 'N/A',
@@ -224,70 +336,7 @@ function transformEPAFacilityData(facilities, violations = []) {
     company.violations.push(violationRecord);
   });
   
-  // 處理設施資料（如果有的話）
-  facilities.forEach(facility => {
-    const facilityId = facility.REGISTRY_ID || facility.FACILITY_ID || facility.ID;
-    if (!facilityId) return;
-    
-    // 檢查是否已經在違規資料中處理過
-    const existingCompany = Array.from(companiesMap.values())
-      .find(c => c.facilities.some(f => f.facilityId === facilityId));
-    
-    if (existingCompany) {
-      // 更新現有設施資料
-      const existingFacility = existingCompany.facilities.find(f => f.facilityId === facilityId);
-      if (existingFacility) {
-        existingFacility.address = facility.FAC_STREET || facility.LOCATION_ADDRESS || existingFacility.address;
-        existingFacility.city = facility.FAC_CITY || facility.CITY || existingFacility.city;
-        existingFacility.state = facility.FAC_STATE || facility.STATE || existingFacility.state;
-        existingFacility.zipCode = facility.FAC_ZIP || facility.ZIP || existingFacility.zipCode;
-        existingFacility.industry = facility.SIC_CODES || facility.NAICS_CODES || existingFacility.industry;
-        existingFacility.coordinates = {
-          latitude: facility.FAC_LAT || facility.LATITUDE || existingFacility.coordinates.latitude,
-          longitude: facility.FAC_LONG || facility.LONGITUDE || existingFacility.coordinates.longitude
-        };
-      }
-    } else {
-      // 新增沒有在違規資料中的設施
-      const facilityName = facility.FAC_NAME || facility.FACILITY_NAME || 'Unknown Facility';
-      const companyName = facility.COMPANY_NAME || facilityName;
-      const companyId = `us-${facilityId}`;
-      
-      companiesMap.set(companyId, {
-        id: companyId,
-        name: companyName,
-        englishName: companyName,
-        parentCompany: 'N/A',
-        facilities: [{
-          facilityId: facilityId,
-          name: facilityName,
-          registryId: facilityId,
-          address: facility.FAC_STREET || facility.LOCATION_ADDRESS || 'N/A',
-          city: facility.FAC_CITY || facility.CITY || 'N/A',
-          state: facility.FAC_STATE || facility.STATE || 'N/A',
-          zipCode: facility.FAC_ZIP || facility.ZIP || 'N/A',
-          country: facility.COUNTRY || 'USA',
-          industry: facility.SIC_CODES || facility.NAICS_CODES || facility.PRIMARY_SIC_CODE || 'N/A',
-          coordinates: {
-            latitude: facility.FAC_LAT || facility.LATITUDE || null,
-            longitude: facility.FAC_LONG || facility.LONGITUDE || null
-          },
-          programs: {
-            air: facility.AIR_FLAG === 'Y' || facility.CAA_FLAG === 'Y',
-            water: facility.NPDES_FLAG === 'Y' || facility.CWA_FLAG === 'Y',
-            waste: facility.RCRA_FLAG === 'Y',
-            toxics: facility.TRI_FLAG === 'Y'
-          }
-        }],
-        violations: [],
-        enforcement: [],
-        metadata: {
-          dataSource: 'EPA ECHO - 設施資料',
-          lastUpdated: new Date().toISOString()
-        }
-      });
-    }
-  });
+  // 設施資料已經在前面處理過了，這裡不需要重複處理
   
   return Array.from(companiesMap.values());
 }
