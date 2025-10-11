@@ -82,13 +82,26 @@ formosaoversee.com
 
    ![GitHub Pages Source](https://docs.github.com/assets/cb-47267/mw-1440/images/help/pages/select-github-actions-source.webp)
 
-### 步驟 2：確認工作流程權限
+### 步驟 2：確認工作流程權限（可選）
 
-1. 在 **Settings** → **Actions** → **General**
+**注意**：由於我們的工作流程檔案（`.github/workflows/deploy.yml`）中已經明確定義了所需權限：
+```yaml
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+```
+
+因此**不需要**在 Settings 中修改 Workflow permissions。如果你遇到權限相關錯誤，可以檢查以下設定：
+
+1. 前往 **Settings** → **Actions** → **General**
 2. 捲動到 **Workflow permissions**
-3. 選擇 **Read and write permissions**
-4. 勾選 **Allow GitHub Actions to create and approve pull requests**
-5. 點擊 **Save**
+3. 確認沒有選擇「禁用 Actions」的選項
+
+**如果無法勾選 "Read and write permissions"**：
+- 這可能是因為你的 repo 屬於組織（Organization），組織管理員可能限制了這個選項
+- 不用擔心，我們的工作流程已在 YAML 中定義了必要權限，不需要這個設定
+- 如果仍然遇到權限問題，請聯絡組織管理員檢查組織層級的 Actions 設定
 
 ---
 
