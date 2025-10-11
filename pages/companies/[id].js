@@ -117,13 +117,15 @@ const CompanyDetail = ({ companyData }) => {
 
   const newsData = { international: [], domestic: [] };
 
-  // Extract plant site options from all facilities, not just violations
-  const facilitySites = companyData.facilities?.map(facility => 
-    `${facility.name}, ${facility.country || 'Unknown'}`
-  ) || [];
+  // Extract plant site options from violations data to ensure exact match
+  const violationPlantSites = [...new Set(
+    violationData
+      .map(v => v.plantSite)
+      .filter(site => site && site !== 'N/A')
+  )];
   const plantSiteOptions = [
     { value: 'all', label: '所有廠區' },
-    ...facilitySites.sort().map(site => ({ value: site, label: site }))
+    ...violationPlantSites.sort().map(site => ({ value: site, label: site }))
   ];
 
   // Memoized filtered violations
