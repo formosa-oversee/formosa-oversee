@@ -26,7 +26,22 @@ function MyApp({ Component, pageProps }) {
         <title>Formosa Oversee - 企業環境監測平台</title>
         <meta name="description" content="追蹤企業環境績效和違規紀錄的平台" />
         <link rel="icon" href="/favicon.ico" />
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+        {/* Preconnect to Google Fonts for faster loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Load font as external stylesheet to avoid inlining */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+          rel="stylesheet"
+          media="print"
+          onLoad="this.media='all'"
+        />
+        <noscript>
+          <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+            rel="stylesheet"
+          />
+        </noscript>
         <script dangerouslySetInnerHTML={{
           __html: `
             // 檢查是否是從 404 頁面重定向過來的
