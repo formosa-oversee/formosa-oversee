@@ -33,7 +33,7 @@ async function downloadWithGsutil() {
     const violationsFile = path.join(DATA_DIR, 'violations.csv');
     
     // 下載設施資料
-    const facilitiesCommand = `gsutil cp gs://epa_echo_data/integrated_facility_matches_cleaned.csv ${facilitiesFile}`;
+    const facilitiesCommand = `gsutil cp gs://epa_echo_data/integrated_facility_matches_updated.csv ${facilitiesFile}`;
     await execAsync(facilitiesCommand);
     console.log('✅ 設施資料下載成功！');
     
