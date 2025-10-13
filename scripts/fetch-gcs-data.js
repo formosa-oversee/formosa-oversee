@@ -306,7 +306,7 @@ function transformEPAFacilityData(facilities, violations = []) {
       violationTypeCode: violation['VIOLATION_TYPE_CODE'],
       violationCode: violation['VIOLATION_CODE'],
       description: violation['VIOLATION_DESC'] || 'N/A',
-      date: violation['SINGLE_EVENT_VIOLATION_DATE'] || violation['RNC_DETECTION_DATE'] || 'N/A',
+      date: violation['SINGLE_EVENT_VIOLATION_DATE'] || violation['MONITORING_PERIOD_END_DATE'] || violation['RNC_DETECTION_DATE'] || 'N/A',
       endDate: violation['SINGLE_EVENT_END_DATE'] || 'N/A',
       comment: violation['SINGLE_EVENT_VIOLATION_COMMENT'] || '',
       agencyType: violation['SINGLE_EVENT_AGENCY_TYPE_CODE'] || 'N/A',
@@ -331,7 +331,13 @@ function transformEPAFacilityData(facilities, violations = []) {
       exceedencePct: violation['EXCEEDENCE_PCT'],
       standardUnit: violation['STANDARD_UNIT_DESC'],
       monitoringPeriodEnd: violation['MONITORING_PERIOD_END_DATE'],
-      daysLate: violation['DAYS_LATE']
+      daysLate: violation['DAYS_LATE'],
+
+      // 額外日期欄位
+      monitoringPeriodEndDate: violation['MONITORING_PERIOD_END_DATE'] || null,
+      valueReceivedDate: violation['VALUE_RECEIVED_DATE'] || null,
+      scheduleDate: violation['SCHEDULE_DATE'] || null,
+      actualDate: violation['ACTUAL_DATE'] || null
     };
     
     company.violations.push(violationRecord);

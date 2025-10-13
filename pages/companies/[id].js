@@ -112,7 +112,11 @@ const CompanyDetail = ({ companyData }) => {
     limitValue: v.limitValue,
     dmrValue: v.dmrValue,
     exceedencePct: v.exceedencePct,
-    standardUnit: v.standardUnit
+    standardUnit: v.standardUnit,
+    monitoringPeriodEndDate: v.monitoringPeriodEndDate,
+    valueReceivedDate: v.valueReceivedDate,
+    scheduleDate: v.scheduleDate,
+    actualDate: v.actualDate
   })) || [];
 
   const newsData = { international: [], domestic: [] };
@@ -408,14 +412,14 @@ const CompanyDetail = ({ companyData }) => {
                       <Thead bg="gray.100">
                         <Tr>
                           <Th>案件編號</Th>
-                          <Th>日期</Th>
-                          <Th>結束日期</Th>
+                          <Th>發生日期</Th>
+                          <Th>監測期結束</Th>
+                          <Th>接收日期</Th>
                           <Th>類型</Th>
                           <Th>違規代碼</Th>
                           <Th>描述</Th>
                           <Th>備註</Th>
                           <Th>狀態</Th>
-                          <Th>罰款</Th>
                           <Th>來源</Th>
                           <Th>廠區</Th>
                         </Tr>
@@ -425,7 +429,8 @@ const CompanyDetail = ({ companyData }) => {
                           <Tr key={index}>
                             <Td>{violation.caseNumber || 'N/A'}</Td>
                             <Td whiteSpace="nowrap">{violation.date || 'N/A'}</Td>
-                            <Td whiteSpace="nowrap">{violation.endDate || 'N/A'}</Td>
+                            <Td whiteSpace="nowrap">{violation.monitoringPeriodEndDate || 'N/A'}</Td>
+                            <Td whiteSpace="nowrap">{violation.valueReceivedDate || 'N/A'}</Td>
                             <Td>
                               <Badge colorScheme={getViolationTypeColor(violation.type)} fontSize="0.8em" whiteSpace="normal">
                                 {violation.type || 'N/A'}
@@ -439,7 +444,6 @@ const CompanyDetail = ({ companyData }) => {
                                 {violation.status || 'N/A'}
                               </Badge>
                             </Td>
-                            <Td>{violation.fine || 'N/A'}</Td>
                             <Td>{violation.source || 'N/A'}</Td>
                             <Td>{violation.plantSite || 'N/A'}</Td>
                           </Tr>
