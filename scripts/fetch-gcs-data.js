@@ -302,6 +302,7 @@ function transformEPAFacilityData(facilities, violations = []) {
     // 建立違規記錄
     const violationRecord = {
       violationId: normalizeId(violation['NPDES_VIOLATION_ID']) || `EPA-${companyCode}-${Date.now()}`,
+      facilityId: facilityId, // 加入設施 ID 以便唯一對應
       violationTypeCode: violation['VIOLATION_TYPE_CODE'],
       violationCode: violation['VIOLATION_CODE'],
       description: violation['VIOLATION_DESC'] || 'N/A',

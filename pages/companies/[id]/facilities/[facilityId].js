@@ -48,9 +48,9 @@ const FacilityDetail = ({ companyData, facility }) => {
     address: companyData.address
   };
 
-  // Filter violations for this facility
+  // Filter violations for this facility using facilityId
   const facilityViolations = companyData.violations?.filter(v =>
-    v.plantSite?.includes(facility.name)
+    v.facilityId === facility.facilityId
   ).map(v => ({
     caseNumber: v.violationId,
     date: v.date,
